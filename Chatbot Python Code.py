@@ -18,6 +18,6 @@ def calculate_SMA(Ticker, window):
     return str(data.rolling(window=window).mean().iloc[-1])
 
 
-def calculate_SMA(Ticker, window):
+def calculate_EMA(Ticker, window):
     data = yr.Ticker(ticker).history(period='1y').Close
-    return str(data.ewm(span=window).mean().iloc[-1])
+    return str(data.ewm(span=window, adjust=False).mean().iloc[-1])
