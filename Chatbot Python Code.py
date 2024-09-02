@@ -23,11 +23,18 @@ def calculate_EMA(ticker, window):
     return str(data.ewm(span=window, adjust=False).mean().iloc[-1])
 
 
-def calculate_EMA(ticker, window):
+def calculate_RSI(ticker, window):
     data = yr.Ticker(ticker).history(period='1y').Close
-    return str(data.ewm(span=window, adjust=False).mean().iloc[-1])
+    delta = data.diff()
+    up = delta.clip(lower=0)
+    down = -1 * delta.clip(upper=0)
+    ema_up = up.ewm(com=14-1, adjust=False).mean()
+    ema_down = down.ewm(com=14-1, adjust=False).mean()
+    rs = ema_up / ema_down
+    return str(100-(100/(1+rs)).iloc[-1])
 
 
-def calculate_EMA(ticker, window):
+def calculate_MACD(ticker):
     data = yr.Ticker(ticker).history(period='1y').Close
-    return str(data.ewm(span=window, adjust=False).mean().iloc[-1])
+    short_EMA = data.ewm(span=12, adjust=False).mean()
+    long_EMA = data.ewm(span=26, adjust=False).mean()
