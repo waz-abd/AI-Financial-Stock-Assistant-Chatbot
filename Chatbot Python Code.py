@@ -77,7 +77,103 @@ functions = [
         "name": "calculate_SMA",
         "description": "Calculate the simple moving average for a given stock ticker and a window.",
         "parameters": {
-
-        }
-    }
+            "type": "object",
+            "properties": {
+                "ticker": {
+                    "type": "string",
+                    "description": "The stock ticker symbol for a company (e.g., AAPL for Apple)",
+                },
+                "window": {
+                    "type": "integer",
+                    "description": "The timeframe to consider when calculating the SMA"
+                }
+            },
+            "required": ["ticker", "window"],
+        },
+    },
+    {
+        "name": "calculate_EMA",
+        "description": "Calculate the exponential moving average for a given stock ticker and a window.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "ticker": {
+                    "type": "string",
+                    "description": "The stock ticker symbol for a company (e.g., AAPL for Apple)",
+                },
+                "window": {
+                    "type": "integer",
+                    "description": "The timeframe to consider when calculating the EMA"
+                }
+            },
+            "required": ["ticker", "window"],
+        },
+    },
+    {
+        "name": "calculate RSI",
+        "description": "Calculate the RSI for a given stock ticker.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "ticker": {
+                    "type": "string",
+                    "description": "The stock ticker symbol for a company (e.g., AAPL for Apple)",
+                },
+            },
+            "required": ["ticker"],
+        },
+    },
+    {
+        "name": "calculate_MACD",
+        "description": "Calculate the MACD for a given stock ticker.",
+        "paarmeters": {
+            "type": "object",
+            "properties": {
+                "ticker": {
+                    "type": "string",
+                    "description": "The stock ticker symbol for a company (e.g., AAPL for Apple)",
+                },
+            },
+            "required": ["ticker"],
+        },
+    },
+    {
+        "name": "plot_stock_price",
+        "description": "Plot the stock price for the last year given the ticker symbol of a company.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "ticker": {
+                    "type": "string",
+                    "description": "The stock ticker symbol for a company (e.g. AAPL for Apple)",
+                },
+            },
+            "required": ["ticker"],
+        },
+    },
 ]
+
+avaliable_fucntions = {
+    'get_stock_price': get_stock_price,
+    'calculate_SMA': calculate_SMA,
+    'calculate_EMA': calculate_EMA,
+    'calculate_RSI': calculate_RSI,
+    'calculate_MACD': calculate_MACD,
+    'plot_stock_price': plot_stock_price
+}
+
+if 'messages' not in st.session_state:
+    st.session_state['message'] = []
+
+st.title('Stock Analysis Chatbot Assistant')
+
+user_input = st.text_input('Your input:')
+
+if user_input:
+    try:
+        st.session_state['messages'].append(
+            {'role': 'user', 'content': f'{user_input}'})
+
+        resposne = openai.ChatCompletion.create(
+            model='gpt-4'
+        )
