@@ -50,7 +50,7 @@ def plot_stock_price(ticker):
     data = yf.Ticker(ticker).history(period='1y')
     plt.figure(figsize=(10, 5))
     plt.plot(data.index, data.Close)
-    plt.title('{ticker} Stock Price Over Last Year')
+    plt.title(f'{ticker} Stock Price Over Last Year')
     plt.xlabel('Date')
     plt.ylabel('Stock Price ($)')
     plt.grid(True)
@@ -175,7 +175,7 @@ if user_input:
             {'role': 'user', 'content': f'{user_input}'})
 
         resposne = openai.ChatCompletion.create(
-            model='gpt-3.5=turbo-0613',
+            model='gpt-3.5-turbo-0613',
             messages=st.session_state['messages'],
             functions=functions,
             function_call='auto'
@@ -193,27 +193,32 @@ if user_input:
                 args_dict = {'ticker': function_args.get(
                     'ticker'), 'window': function_args.get('window')}
 
-        function_to_call = avaliable_functions[function_name]
-        function_response = function_to_call(**args_dict)
+            function_to_call = avaliable_functions[function_name]
+            function_response = function_to_call(**args_dict)
 
-        if function_name == 'plot_stock_price':
-            st.image('stock.png')
+            if function_name == 'plot_stock_price':
+                st.image('stock.png')
+            else:
+                st.session_state['messages'].append(response_message)
+                st.session_state['messages'].append(
+                    {
+                        'role': 'function',
+                        'name': function_name,
+                        'content': function_response
+                    }
+                )
+                second_response = openai.ChatCompletion.create(
+                    model='gpt-3.5=turbo-0613',
+                    messages=st.session_state['messages']
+                )
+                st.text(second_response['choice'][0]['message']['content'])
+                st.session_state['messages'].append(
+                    {'role': 'assistant', 'content': response_message['content']})
+
         else:
-            st.session_state['messages'].append(response_message)
-            st.session_state['messages'].append(
-                {
-                    'role': 'function',
-                    'name': function_name,
-                    'content': function_response
-                }
-            )
-            second_response = openai.ChatCompletion.create(
-                model='gpt-3.5=turbo-0613',
-                messages=st.session_state['messages']
-            )
-            st.text(second_response['choice'][0]['message']['content'])
-            st.text(second_response['messages'].append(
-                {'role': 'assistant', 'content': response_message['content']}))
-            st.session_state['mes']
+            st.text(response_messages['content'])
+            st.session.state['messages'].append(
+                {'role': 'assistant', 'content': response_message['content']})
 
-    except:
+    except Exception as e:
+        raise e
