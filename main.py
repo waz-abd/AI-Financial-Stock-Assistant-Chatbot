@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import yfinance as yf
 
-openai.api_key = open('API_KEY', 'r').read()
+openai.api_key = open('API_KEY.txt', 'r').read()
 
 
 def get_stock_price(ticker):
@@ -163,19 +163,20 @@ avaliable_fucntions = {
 }
 
 if 'messages' not in st.session_state:
-    st.session_state['message'] = []
+    st.session_state['messages'] = []
 
 st.title('Stock Analysis Chatbot Assistant')
 
 user_input = st.text_input('Your input:')
+
 
 if user_input:
     try:
         st.session_state['messages'].append(
             {'role': 'user', 'content': f'{user_input}'})
 
-        resposne = openai.ChatCompletion.create(
-            model='gpt-3.5-turbo-0613',
+        response = openai.ChatCompletion.create(
+            model='gpt-4',
             messages=st.session_state['messages'],
             functions=functions,
             function_call='auto'
