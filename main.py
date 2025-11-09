@@ -8,6 +8,8 @@ import yfinance as yf
 
 openai.api_key = open('API_KEY.txt', 'r').read()
 
+# Functions
+
 
 def get_stock_price(ticker):
     return str(yf.Ticker(ticker).history(period='1y').iloc[-1].Close)
@@ -28,10 +30,10 @@ def calculate_RSI(ticker, window):
     delta = data.diff()
     up = delta.clip(lower=0)
     down = -1 * delta.clip(upper=0)
-    ema_up = up.ewm(com=14-1, adjust=False).mean()
-    ema_down = down.ewm(com=14-1, adjust=False).mean()
-    rs = ema_up / ema_down
-    return str(100-(100/(1+rs)).iloc[-1])
+    ema_up = up.ewm(com=14 - 1, adjust=False).mean()
+    ema_down = down.ewm(com=14 - 1, adjust=False).mean()
+    rs = ema_up/ema_down
+    return str(100 - (100/(1 + rs)).iloc[-1])
 
 
 def calculate_MACD(ticker):
@@ -58,6 +60,7 @@ def plot_stock_price(ticker):
     plt.close()
 
 
+# Define Functions in a List, that has dictonaries
 functions = [
     {
         'name': 'get_stock_price',
@@ -153,7 +156,7 @@ functions = [
     },
 ]
 
-avaliable_fucntions = {
+avaliable_functions = {
     'get_stock_price': get_stock_price,
     'calculate_SMA': calculate_SMA,
     'calculate_EMA': calculate_EMA,
@@ -173,10 +176,12 @@ user_input = st.text_input('Your input:')
 if user_input:
     try:
         st.session_state['messages'].append(
-            {'role': 'user', 'content': f'{user_input}'})
-
+            {'role': 'user',
+             'content': f'{user_input}'
+             })
+# Change something hereeeee, line 181
         response = openai.ChatCompletion.create(
-            model='gpt-4',
+            model='gpt-5',
             messages=st.session_state['messages'],
             functions=functions,
             function_call='auto'
@@ -189,10 +194,11 @@ if user_input:
             function_args = json.loads(
                 response_message['function_call']['arguments'])
             if function_name in ['get_stock_price', 'calculate_RSI', 'calculate_MACD', 'plot_stock_price']:
-                args_dict = {'ticker': fucntion_args.get('ticker')}
+                args_dict = {'ticker': function_args.get('ticker')}
             elif function_name in ['calculate_SMA', 'calculate_EMA']:
-                args_dict = {'ticker': function_args.get(
-                    'ticker'), 'window': function_args.get('window')}
+                args_dict = {'ticker': function_args.get('ticker'),
+                             'window': function_args.get('window')
+                             }
 
             function_to_call = avaliable_functions[function_name]
             function_response = function_to_call(**args_dict)
@@ -209,17 +215,23 @@ if user_input:
                     }
                 )
                 second_response = openai.ChatCompletion.create(
-                    model='gpt-3.5=turbo-0613',
+                    model='gpt-5',
                     messages=st.session_state['messages']
                 )
+
                 st.text(second_response['choice'][0]['message']['content'])
                 st.session_state['messages'].append(
-                    {'role': 'assistant', 'content': response_message['content']})
+                    {'role': 'assistant',
+                     'content': second_response['choice'][0]['message']['content']
+                     # 'content': response_message['content']
+                     })
 
         else:
-            st.text(response_messages['content'])
+            st.text(response_message['content'])
             st.session.state['messages'].append(
-                {'role': 'assistant', 'content': response_message['content']})
+                {'role': 'assistant',
+                 'content': response_message['content']
+                 })
 
     except Exception as e:
         raise e
